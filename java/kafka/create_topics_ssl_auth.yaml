@@ -1,0 +1,107 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: my-topic
+  labels:
+      strimzi.io/cluster: kafka-cluster
+spec:
+  replicas: 2
+  partitions: 8
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: my-topic-reversed
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  replicas: 2
+  partitions: 8
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: java-kafka-producer
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: my-topic
+        operation: Write
+      - resource:
+          type: topic
+          name: my-topic
+        operation: Create
+      - resource:
+          type: topic
+          name: my-topic
+        operation: Describe
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: java-kafka-streams
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: my-topic
+        operation: Read
+      - resource:
+          type: topic
+          name: my-topic
+        operation: Describe
+      - resource:
+          type: group
+          name: java-kafka-streams
+          patternType: prefix
+        operation: Read
+      - resource:
+          type: topic
+          name: my-topic-reversed
+        operation: Write
+      - resource:
+          type: topic
+          name: my-topic-reversed
+        operation: Create
+      - resource:
+          type: topic
+          name: my-topic-reversed
+        operation: Describe
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: java-kafka-consumer
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: my-topic-reversed
+        operation: Read
+      - resource:
+          type: topic
+          name: my-topic-reversed
+        operation: Describe
+      - resource:
+          type: group
+          name: java-kafka-consumer
+        operation: Read
